@@ -121,6 +121,13 @@ crm.on("connection:newToken", token => {
 });
 
 app.post("/amo/leads", (req, res) => {
+  const errors = validate(req.body);
+
+  if (errors.length > 0) {
+    res.status(400).send(`Required fileds: ${errors.join(", ")}`);
+    return;
+  }
+
   try {
     crm.connection.setToken(currentToken, 0);
     createLead(
@@ -150,3 +157,16 @@ app.post("/amo/leads", (req, res) => {
 app.listen(port, () => {
   console.log(`app listening at http://localhost:${port}`);
 });
+
+const validate = req => {
+  const errors = [];
+
+  if (!req.leadType) errors.push("leadType");
+  if (!req.firstName) errors.push("firstName");
+  if (!req.lastName) errors.push("lastName");
+  if (!req.phone) errors.push("phone");
+  if (!req.email) errors.push("email");
+  if (!req.city) errors.push("city");
+
+  return errors;
+};
